@@ -2,13 +2,14 @@ package main
 
 import (
 	"bytes"
-	"database/sql"
+	// "database/sql"
 	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 var defaultConfig = []byte(`
@@ -26,7 +27,7 @@ backend:
 // Config is the config for the whole package
 var Config *viper.Viper
 
-var userDb *sql.DB
+var userDb *gorm.DB
 
 func initConfig() {
 	Config = viper.New()
@@ -47,9 +48,9 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(token, len(token))
-	if err := sendEmailVerification("brianbb.su@gmail.com", token); err != nil {
-		panic(err)
-	}
+	// if err := sendEmailVerification("brianbb.su@gmail.com", token); err != nil {
+	// 	panic(err)
+	// }
 	fmt.Println("Done!")
 
 	initServer()
@@ -71,13 +72,14 @@ func initRouter(router *gin.Engine) {
 func initDatabase() {
 	var err error
 
-	userDb, err = sql.Open("sqlite3", Config.GetString("backend.db"))
+	userDb, err = gorm.Open("sqlite3", Config.GetString("backend.db"))
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	userDb.Exec("create table users (username varchar(20) not null, password varchar(20) not null, email varchar(20) not null, primary key (username));")
+	// userDb.Exec("create table users (username varchar(20) not null, password varchar(20) not null, email varchar(20) not null, primary key (username));")
+	userDb.AutoMigrate(&User{})
 }
 
 // router
@@ -94,7 +96,7 @@ func router_initApiRouter(group *gin.RouterGroup) {
 
 func router_api_initUserRouter(group *gin.RouterGroup) {
 	group.POST("/login", controller_users_login)
-
+	group.POST("/register", controller_users_register)
 }
 
 // controller
@@ -104,42 +106,34 @@ func controller_users_login(c *gin.Context) {
 
 	c.BindJSON(&user)
 
-	log.Println(user.Username, user.Password)
-	stmt, err := userDb.Prepare("select * from users where username = ? and password = ?")
-
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	
-	rows, err := stmt.Query(user.Username, user.Password)
-
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		err := rows.Scan(&user.Username, &user.Password, &user.Email)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+	result := userDb.Where(user).First(&user)
 
 	c.JSON(200, gin.H {
-		"status":  "success",
-		"username": user.Username,
-		"password": user.Password,
-		"email": user.Email,
+		"status": func() string { if result.RowsAffected > 0 && result.Error != nil { return "success" } else { return "failed" } } (),
+		"user": user,
+		"error": result.Error,
+	})
+}
+
+func controller_users_register(c *gin.Context) {
+	var user User
+
+	c.BindJSON(&user)
+
+	result := userDb.Create(&user)
+
+	c.JSON(200, gin.H {
+		"status": func() string { if result.RowsAffected > 0 && result.Error != nil { return "success" } else { return "failed" } } (),
+		"user": user,
+		"error": result.Error,
 	})
 }
 
 // model
 
 type User struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email string `json:"email"`
+	gorm.Model
+	Username string `json:"username" gorm:"not null"`
+	Password string `json:"password" gorm:"not null"`
+	Email string `json:"email" gorm:"not null"` // not null isnt working QQ
 }
