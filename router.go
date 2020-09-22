@@ -16,9 +16,11 @@ func router_initApiRouter(group *gin.RouterGroup) {
 
 	group.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H {
-			"message": "pong",
+			"status": "success",
 		})
 	})
+
+	group.POST("get_verification_code", controller_getVerificationCode)
 }
 
 func router_api_initUserRouter(group *gin.RouterGroup) {

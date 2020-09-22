@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -22,11 +21,12 @@ backend:
   port: 3030
   db: ./test.db
 `)
+// TODO: add verfication effective/expire time
 
 // Config is the config for the whole package
 var Config *viper.Viper
 
-var userDb *gorm.DB
+var db *gorm.DB
 
 func initConfig() {
 	Config = viper.New()
@@ -62,17 +62,5 @@ func initServer() {
 	initDatabase()
 
 	router.Run("localhost:" + Config.GetString("backend.port"))
-}
-
-func initDatabase() {
-	var err error
-
-	userDb, err = gorm.Open("sqlite3", Config.GetString("backend.db"))
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	userDb.AutoMigrate(&User{})
 }
 
