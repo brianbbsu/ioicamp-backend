@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	// "database/sql"
 	"fmt"
 	"log"
 
@@ -65,10 +64,6 @@ func initServer() {
 	router.Run("localhost:" + Config.GetString("backend.port"))
 }
 
-func initRouter(router *gin.Engine) {
-	router_initApiRouter(router.Group("/api"))
-}
-
 func initDatabase() {
 	var err error
 
@@ -78,62 +73,6 @@ func initDatabase() {
 		return
 	}
 
-	// userDb.Exec("create table users (username varchar(20) not null, password varchar(20) not null, email varchar(20) not null, primary key (username));")
 	userDb.AutoMigrate(&User{})
 }
 
-// router
-
-func router_initApiRouter(group *gin.RouterGroup) {
-	router_api_initUserRouter(group.Group("/users"))
-
-	group.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H {
-			"message": "pong",
-		})
-	})
-}
-
-func router_api_initUserRouter(group *gin.RouterGroup) {
-	group.POST("/login", controller_users_login)
-	group.POST("/register", controller_users_register)
-}
-
-// controller
-
-func controller_users_login(c *gin.Context) {
-	var user User
-
-	c.BindJSON(&user)
-
-	result := userDb.Where(user).First(&user)
-
-	c.JSON(200, gin.H {
-		"status": func() string { if result.RowsAffected > 0 && result.Error != nil { return "success" } else { return "failed" } } (),
-		"user": user,
-		"error": result.Error,
-	})
-}
-
-func controller_users_register(c *gin.Context) {
-	var user User
-
-	c.BindJSON(&user)
-
-	result := userDb.Create(&user)
-
-	c.JSON(200, gin.H {
-		"status": func() string { if result.RowsAffected > 0 && result.Error != nil { return "success" } else { return "failed" } } (),
-		"user": user,
-		"error": result.Error,
-	})
-}
-
-// model
-
-type User struct {
-	gorm.Model
-	Username string `json:"username" gorm:"not null"`
-	Password string `json:"password" gorm:"not null"`
-	Email string `json:"email" gorm:"not null"` // not null isnt working QQ
-}
