@@ -18,12 +18,14 @@ email:
   server: smtp.csie.ntu.edu.tw
   port: 587
 TemplateDir: ./template/
+backend:
+  port: 3030
+  db: ./test.db
 `)
 
 // Config is the config for the whole package
 var Config *viper.Viper
 
-var port int = 3030
 var userDb *sql.DB
 
 func initConfig() {
@@ -59,7 +61,7 @@ func initServer() {
 	initRouter(router)
 	initDatabase()
 
-	router.Run(fmt.Sprint("localhost:", port))
+	router.Run("localhost:" + Config.GetString("backend.port"))
 }
 
 func initRouter(router *gin.Engine) {
@@ -69,7 +71,7 @@ func initRouter(router *gin.Engine) {
 func initDatabase() {
 	var err error
 
-	userDb, err = sql.Open("sqlite3", "../test.db")
+	userDb, err = sql.Open("sqlite3", Config.GetString("backend.db"))
 	if err != nil {
 		log.Fatal(err)
 		return
