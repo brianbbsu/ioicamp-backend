@@ -3,6 +3,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -47,4 +48,17 @@ func getEmailVerificationByEmail(email string) (EmailVerification, error) {
 	result := db.Where("email = ?", email).First(&emailVerification)
 
 	return emailVerification, result.Error
+}
+
+func getLastCreatedAtByEmail(email string) (time.Time, error) {
+	var response EmailVerification
+
+	result := db.Select("created_at").Where("email = ?", email).Last(&response)
+	log.Println(response.CreatedAt, result.Error)
+
+	if result.RowsAffected == 0 {
+		return time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC), nil
+	}
+
+	return response.CreatedAt, result.Error
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func getRandomToken(n int) (string, error) {
-	const sigma = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	const sigma = "23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
 	ret := make([]byte, 0)
 	for i := 0; i < n; i++ {
 		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(sigma))))

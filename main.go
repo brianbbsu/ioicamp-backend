@@ -12,10 +12,11 @@ import (
 
 var defaultConfig = []byte(`
 email:
-  email: me@example.org
-  password: thisisapassword
+  email: no-reply.ioicamp@csie.ntu.edu.tw
+  password: owo
   server: smtp.csie.ntu.edu.tw
   port: 587
+  requestDurationMinutes: 1
 TemplateDir: ./template/
 backend:
   port: 3030
