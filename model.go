@@ -58,6 +58,14 @@ func getUserByEmail(email string) (User, error) {
 	return user, result.Error
 }
 
+func getUserByID(uid int) (User, error) {
+	var user User
+
+	result := db.First(&user, uid)
+
+	return user, result.Error
+}
+
 func getEmailVerificationByEmail(email string) (EmailVerification, error) {
 	var emailVerification EmailVerification
 

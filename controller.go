@@ -78,9 +78,18 @@ func controllerUsersLogin(c *gin.Context) {
 		return
 	}
 
+	token, err := getJWTTokenByUID(user.ID)
+
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status": "failed",
+			"error":  "Unknown error",
+		})
+	}
+
 	c.JSON(200, gin.H{
 		"status": "success",
-		"user":   user,
+		"token":  token,
 	})
 }
 
@@ -140,6 +149,22 @@ func controllerUsersGetApplyForm(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"status":    "success",
 		"applyForm": applyForm,
+	})
+}
+
+func controllerUsersWhoAmI(c *gin.Context) {
+	uid := c.GetInt("UID")
+	user, err := getUserByID(uid)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status": "failed",
+			"error":  err,
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": "success",
+		"email":  user.Email,
 	})
 }
 

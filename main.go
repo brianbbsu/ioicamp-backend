@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/spf13/viper"
 )
 
 var defaultConfig = []byte(`
@@ -22,7 +22,11 @@ TemplateDir: ./template/
 backend:
   port: 3030
   db: ./test.db
+jwt:
+  secret: THIS_IS_A_SECRET # Change this to a long random string in production
+  tokenEffectiveMinutes: 1440
 `)
+
 // TODO: add verfication effective/expire time
 
 // Config is the config for the whole package
@@ -65,4 +69,3 @@ func initServer() {
 
 	router.Run("localhost:" + Config.GetString("backend.port"))
 }
-

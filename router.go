@@ -18,11 +18,14 @@ func routerInitAPIRouter(group *gin.RouterGroup) {
 	})
 
 	group.POST("get-verification-token", controllerGetVerificationCode)
+	group.POST("login", controllerUsersLogin)
+	group.POST("register", controllerUsersRegister)
 }
 
 func routerAPIinitUserRouter(group *gin.RouterGroup) {
-	group.POST("/login", controllerUsersLogin)
-	group.POST("/register", controllerUsersRegister)
-	group.GET("/apply-form", controllerUsersGetApplyForm)
-	// group.PUT("/apply-form", controller_users_updateApplyForm)
+	group.Use(authWithJWT)
+	{
+		group.GET("apply-form", controllerUsersGetApplyForm)
+		group.GET("whoami", controllerUsersWhoAmI)
+	}
 }
