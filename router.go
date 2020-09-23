@@ -20,7 +20,7 @@ func router_initApiRouter(group *gin.RouterGroup) {
 		})
 	})
 
-	group.POST("get_verification_code", controller_getVerificationCode)
+	group.POST("get-verification-token", controller_getVerificationCode)
 }
 
 func router_api_initUserRouter(group *gin.RouterGroup) {

@@ -14,24 +14,6 @@ func controller_getVerificationCode(c *gin.Context) {
 
 	c.BindJSON(&request)
 
-	// user, err := getUserByEmail(request.Email)
-	//
-	// if user.ID != 0 {
-	// 	c.JSON(200, gin.H {
-	// 		"status": "failed",
-	// 		"error": "Email in use",
-	// 	})
-	// 	return
-	// }
-	// 
-	// if err != nil {
-	// 	c.JSON(200, gin.H {
-	// 		"status": "failed",
-	// 		"error": err,
-	// 	})
-	// 	return
-	// }
-
 	lastApplyTime, err := getLastCreatedAtByEmail(request.Email)
 	if err != nil {
 		c.JSON(200, gin.H {
@@ -84,35 +66,71 @@ func controller_getVerificationCode(c *gin.Context) {
 }
 
 func controller_users_login(c *gin.Context) {
-	var request, response User
-
-	c.BindJSON(&request)
-
-	result := db.Where(request).First(&response)
-	// TODO: move this to `model.go`
-
-	c.JSON(200, gin.H {
-		"status": func() string { if result.RowsAffected > 0 && result.Error != nil { return "success" } else { return "failed" } } (),
-		"user": response,
-		"error": result.Error,
-	})
-}
-
-func controller_users_register(c *gin.Context) {
 	var request User
 
 	c.BindJSON(&request)
 
-	// TODO: check verification token
+	user, err := getUserByEmailAndPassword(request.Email, request.Password)
 
-	result := db.Create(&request)
-	// TODO: move this to `model.go`
+	if err != nil {
+		c.JSON(200, gin.H {
+			"status": "failed",
+			"error": "User not found",
+		})
+		return
+	}
 
 	c.JSON(200, gin.H {
-		"status": func() string { if result.RowsAffected > 0 && result.Error != nil { return "success" } else { return "failed" } } (),
-		"user": request,
-		"error": result.Error,
+		"status": "success",
+		"user": user,
 	})
+}
+
+func controller_users_register(c *gin.Context) {
+	var request UserRegisterRequestInterface
+
+	c.BindJSON(&request)
+
+	emailVerification, err := getEmailVerificationByEmailAndToken(request.Email, request.Token)
+	if err != nil {
+		c.JSON(200, gin.H {
+			"status": "failed",
+			"error": "Token not found",
+		})
+		return
+	}
+
+	duration := time.Since(emailVerification.CreatedAt)
+	if duration.Minutes() > Config.GetFloat64("email.tokenEffectiveMinutes") {
+		c.JSON(200, gin.H {
+			"status": "failed",
+			"error": "Token expired",
+		})
+		return
+	}
+
+	// TODO: validate
+
+	user, err := createUserByEmailAndPassword(request.Email, request.Password)
+	if err != nil {
+		c.JSON(200, gin.H {
+			"status": "failed",
+			"error": err,
+		})
+		return
+	}
+
+
+	c.JSON(200, gin.H {
+		"status": "success",
+		"user": user,
+	})
+}
+
+type UserRegisterRequestInterface struct {
+	Email string `json:"email"`
+	Password string `json:"password"`
+	Token string `json:"token"`
 }
 
 // TODO: maybe need a error map?

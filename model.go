@@ -2,7 +2,7 @@
 package main
 
 import (
-	"log"
+	// "log"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -10,9 +10,8 @@ import (
 
 type User struct {
 	gorm.Model
-	Username string `json:"username" gorm:"not null"`
+	Email string `json:"email" gorm:"not null;unique"` // not null isnt working QQ
 	Password string `json:"password" gorm:"not null"`
-	Email string `json:"email" gorm:"not null"` // not null isnt working QQ
 }
 // TODO: split request and database object
 
@@ -50,15 +49,38 @@ func getEmailVerificationByEmail(email string) (EmailVerification, error) {
 	return emailVerification, result.Error
 }
 
+func getEmailVerificationByEmailAndToken(email, token string) (EmailVerification, error) {
+	var emailVerification EmailVerification
+
+	result := db.Where("email = ? and token = ?", email, token).First(&emailVerification)
+
+	return emailVerification, result.Error
+}
+
 func getLastCreatedAtByEmail(email string) (time.Time, error) {
 	var response EmailVerification
 
 	result := db.Select("created_at").Where("email = ?", email).Last(&response)
-	log.Println(response.CreatedAt, result.Error)
 
 	if result.RowsAffected == 0 {
 		return time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC), nil
 	}
 
 	return response.CreatedAt, result.Error
+}
+
+func getUserByEmailAndPassword(email, password string) (User, error) {
+	var user User
+
+	result := db.Where("email = ? and password = ?", email, password).First(&user)
+
+	return user, result.Error
+}
+
+func createUserByEmailAndPassword(email, password string) (User, error) {
+	user := User{Email: email, Password: password}
+
+	result := db.Create(&user)
+
+	return user, result.Error
 }

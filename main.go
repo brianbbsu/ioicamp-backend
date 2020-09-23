@@ -17,6 +17,7 @@ email:
   server: smtp.csie.ntu.edu.tw
   port: 587
   requestDurationMinutes: 1
+  tokenEffectiveMinutes: 60
 TemplateDir: ./template/
 backend:
   port: 3030
