@@ -120,7 +120,6 @@ func controller_users_register(c *gin.Context) {
 		return
 	}
 
-
 	c.JSON(200, gin.H {
 		"status": "success",
 		"user": user,

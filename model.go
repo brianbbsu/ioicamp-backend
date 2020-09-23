@@ -2,7 +2,7 @@
 package main
 
 import (
-	// "log"
+	"log"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -10,10 +10,9 @@ import (
 
 type User struct {
 	gorm.Model
-	Email string `json:"email" gorm:"not null;unique"` // not null isnt working QQ
+	Email string `json:"email" gorm:"not null;unique"`
 	Password string `json:"password" gorm:"not null"`
 }
-// TODO: split request and database object
 
 type EmailVerification struct {
 	gorm.Model
