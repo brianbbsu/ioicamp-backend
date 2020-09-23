@@ -126,6 +126,25 @@ func controller_users_register(c *gin.Context) {
 	})
 }
 
+func controller_users_getApplyForm(c *gin.Context) {
+	uid := 1
+
+	applyForm, err := getApplyFormByUserID(uid)
+
+	if err != nil {
+		c.JSON(200, gin.H {
+			"status": "failed",
+			"error": err,
+		})
+		return
+	}
+
+	c.JSON(200, gin.H {
+		"status": "success",
+		"applyForm": applyForm,
+	})
+}
+
 type UserRegisterRequestInterface struct {
 	Email string `json:"email"`
 	Password string `json:"password"`

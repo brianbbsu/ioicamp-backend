@@ -10,14 +10,30 @@ import (
 
 type User struct {
 	gorm.Model
-	Email string `json:"email" gorm:"not null;unique"`
-	Password string `json:"password" gorm:"not null"`
+	Email string `gorm:"not null;unique"`
+	Password string `gorm:"not null"`
+	ApplyFormID int
+	ApplyForm ApplyForm `gorm:"not null"`
 }
 
 type EmailVerification struct {
 	gorm.Model
 	Email string `json:"email" gorm:"not null"`
 	Token string `json:"token" gorm:"not null"`
+}
+
+type ApplyForm struct {
+	gorm.Model
+	Email string `gorm:"not null"`
+	Name string `gorm:"not null"`
+	Gender string `gorm:"not null"`
+	School string `gorm:"not null"`
+	Grade string `gorm:"not null"`
+	CodeTime string `gorm:"not null"`
+	CPTime string `gorm:"not null"`
+	Prize string `gorm:"not null;size:1024"`
+	OJ string `gorm:"not null;size:1024"`
+	Motivation string `gorm:"not null;size:8000"`
 }
 
 func initDatabase() {
@@ -29,7 +45,7 @@ func initDatabase() {
 		return
 	}
 
-	db.AutoMigrate(&User{}, &EmailVerification{})
+	db.AutoMigrate(&User{}, &EmailVerification{}, &ApplyForm{})
 }
 
 func getUserByEmail(email string) (User, error) {
@@ -82,4 +98,12 @@ func createUserByEmailAndPassword(email, password string) (User, error) {
 	result := db.Create(&user)
 
 	return user, result.Error
+}
+
+func getApplyFormByUserID(uid int) (ApplyForm, error) {
+	var applyForm ApplyForm
+
+	result := db.Find(&User{}, uid).Related(&applyForm)
+
+	return applyForm, result.Error
 }

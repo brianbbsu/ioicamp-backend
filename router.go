@@ -26,4 +26,6 @@ func router_initApiRouter(group *gin.RouterGroup) {
 func router_api_initUserRouter(group *gin.RouterGroup) {
 	group.POST("/login", controller_users_login)
 	group.POST("/register", controller_users_register)
+	group.GET("/apply-form", controller_users_getApplyForm)
+	// group.PUT("/apply-form", controller_users_updateApplyForm)
 }
