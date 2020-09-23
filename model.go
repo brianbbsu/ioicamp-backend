@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -8,31 +7,34 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// User is a database model for an user account
 type User struct {
 	gorm.Model
-	Email string `gorm:"not null;unique"`
-	Password string `gorm:"not null"`
+	Email       string `gorm:"not null;unique"`
+	Password    string `gorm:"not null"`
 	ApplyFormID int
-	ApplyForm ApplyForm `gorm:"not null"`
+	ApplyForm   ApplyForm `gorm:"not null"`
 }
 
+// EmailVerification is a database model storing email verification tokens
 type EmailVerification struct {
 	gorm.Model
 	Email string `json:"email" gorm:"not null"`
 	Token string `json:"token" gorm:"not null"`
 }
 
+// ApplyForm is a database model storing application forms
 type ApplyForm struct {
 	gorm.Model
-	Email string `gorm:"not null"`
-	Name string `gorm:"not null"`
-	Gender string `gorm:"not null"`
-	School string `gorm:"not null"`
-	Grade string `gorm:"not null"`
-	CodeTime string `gorm:"not null"`
-	CPTime string `gorm:"not null"`
-	Prize string `gorm:"not null;size:1024"`
-	OJ string `gorm:"not null;size:1024"`
+	Email      string `gorm:"not null"`
+	Name       string `gorm:"not null"`
+	Gender     string `gorm:"not null"`
+	School     string `gorm:"not null"`
+	Grade      string `gorm:"not null"`
+	CodeTime   string `gorm:"not null"`
+	CPTime     string `gorm:"not null"`
+	Prize      string `gorm:"not null;size:1024"`
+	OJ         string `gorm:"not null;size:1024"`
 	Motivation string `gorm:"not null;size:8000"`
 }
 

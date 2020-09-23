@@ -1,31 +1,28 @@
-
 package main
 
 import (
-	// "log"
-
 	"github.com/gin-gonic/gin"
 )
 
 func initRouter(router *gin.Engine) {
-	router_initApiRouter(router.Group("/api"))
+	routerInitAPIRouter(router.Group("/api"))
 }
 
-func router_initApiRouter(group *gin.RouterGroup) {
-	router_api_initUserRouter(group.Group("/users"))
+func routerInitAPIRouter(group *gin.RouterGroup) {
+	routerAPIinitUserRouter(group.Group("/users"))
 
 	group.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H {
+		c.JSON(200, gin.H{
 			"status": "success",
 		})
 	})
 
-	group.POST("get-verification-token", controller_getVerificationCode)
+	group.POST("get-verification-token", controllerGetVerificationCode)
 }
 
-func router_api_initUserRouter(group *gin.RouterGroup) {
-	group.POST("/login", controller_users_login)
-	group.POST("/register", controller_users_register)
-	group.GET("/apply-form", controller_users_getApplyForm)
+func routerAPIinitUserRouter(group *gin.RouterGroup) {
+	group.POST("/login", controllerUsersLogin)
+	group.POST("/register", controllerUsersRegister)
+	group.GET("/apply-form", controllerUsersGetApplyForm)
 	// group.PUT("/apply-form", controller_users_updateApplyForm)
 }
