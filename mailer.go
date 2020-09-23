@@ -21,16 +21,6 @@ func sendMail(mail *gomail.Message) error {
 	return nil
 }
 
-func sendTestMail(recipient string) error {
-	mail := gomail.NewMessage()
-	mail.SetHeader("To", recipient)
-	mail.SetHeader("Subject", "This is just a test")
-	mail.SetBody("text/html", "Hello!!<br>This is a test.<br><b>How are you?</b>")
-
-	err := sendMail(mail)
-	return err
-}
-
 func sendEmailVerification(address string, token string) error {
 	templatePath := path.Join(Config.GetString("TemplateDir"), "EmailVerification.html")
 	emailTemplate := template.Must(template.ParseFiles(templatePath))
