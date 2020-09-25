@@ -144,7 +144,7 @@ func controllerUsersRegister(c *gin.Context) {
 }
 
 func controllerUsersGetApplyForm(c *gin.Context) {
-	uid := 1
+	uid, _ := c.MustGet("UID").(uint)
 
 	applyForm, err := getApplyFormByUserID(uid)
 
@@ -158,7 +158,38 @@ func controllerUsersGetApplyForm(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"status":    "success",
-		"applyForm": applyForm,
+		"applyForm": applyForm.ApplyFormData,
+	})
+}
+
+func controllerUsersPutApplyForm(c *gin.Context) {
+	var newForm ApplyFormData
+
+	uid, _ := c.MustGet("UID").(uint)
+
+	form, err := getApplyFormByUserID(uid)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status": "failed",
+			"error":  err,
+		})
+		return
+	}
+
+	c.BindJSON(&newForm)
+	form.ApplyFormData = newForm
+
+	err = updateFormByForm(form)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status": "failed",
+			"error":  err,
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"status":    "success",
 	})
 }
 

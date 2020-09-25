@@ -26,6 +26,10 @@ type EmailVerification struct {
 // ApplyForm is a database model storing application forms
 type ApplyForm struct {
 	gorm.Model
+	ApplyFormData
+}
+
+type ApplyFormData struct {
 	// Email      string `gorm:"not null"`
 	Name       string `gorm:"not null"`
 	Gender     string `gorm:"not null"`
@@ -123,10 +127,14 @@ func attachApplyFormByUID(uid uint) error {
 	return nil
 }
 
-func getApplyFormByUserID(uid int) (ApplyForm, error) {
+func getApplyFormByUserID(uid uint) (ApplyForm, error) {
 	var applyForm ApplyForm
 
 	result := db.Find(&User{}, uid).Related(&applyForm)
 
 	return applyForm, result.Error
+}
+
+func updateFormByForm(form ApplyForm) error {
+	return db.Save(&form).Error
 }
