@@ -12,7 +12,7 @@ type User struct {
 	gorm.Model
 	Email       string `gorm:"not null;unique"`
 	Password    string `gorm:"not null"`
-	ApplyFormID int
+	ApplyFormID uint
 	ApplyForm   ApplyForm `gorm:"not null"`
 }
 
@@ -26,7 +26,7 @@ type EmailVerification struct {
 // ApplyForm is a database model storing application forms
 type ApplyForm struct {
 	gorm.Model
-	Email      string `gorm:"not null"`
+	// Email      string `gorm:"not null"`
 	Name       string `gorm:"not null"`
 	Gender     string `gorm:"not null"`
 	School     string `gorm:"not null"`
@@ -58,7 +58,7 @@ func getUserByEmail(email string) (User, error) {
 	return user, result.Error
 }
 
-func getUserByID(uid int) (User, error) {
+func getUserByID(uid uint) (User, error) {
 	var user User
 
 	result := db.First(&user, uid)
@@ -108,6 +108,19 @@ func createUserByEmailAndPassword(email, password string) (User, error) {
 	result := db.Create(&user)
 
 	return user, result.Error
+}
+
+func attachApplyFormByUID(uid uint) error {
+	var user User
+	var form ApplyForm
+	result := db.Create(&form)
+	if result.Error != nil {
+		return result.Error
+	}
+	db.First(&user, uid)
+	user.ApplyFormID = form.ID
+	db.Save(&user)
+	return nil
 }
 
 func getApplyFormByUserID(uid int) (ApplyForm, error) {

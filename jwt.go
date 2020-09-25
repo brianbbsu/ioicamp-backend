@@ -59,7 +59,7 @@ func authWithJWT(c *gin.Context) {
 		return
 	}
 	if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
-		c.Set("UID", int(claims.UID))
+		c.Set("UID", claims.UID)
 		c.Next()
 	} else {
 		c.Abort()

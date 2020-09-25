@@ -127,9 +127,19 @@ func controllerUsersRegister(c *gin.Context) {
 		return
 	}
 
+	err = attachApplyFormByUID(user.ID)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status": "failed",
+			"error":  err,
+		})
+		return
+	}
+
+	user, _ = getUserByID(user.ID)
+
 	c.JSON(200, gin.H{
 		"status": "success",
-		"user":   user,
 	})
 }
 
@@ -153,7 +163,7 @@ func controllerUsersGetApplyForm(c *gin.Context) {
 }
 
 func controllerUsersWhoAmI(c *gin.Context) {
-	uid := c.GetInt("UID")
+	uid, _ := c.MustGet("UID").(uint)
 	user, err := getUserByID(uid)
 	if err != nil {
 		c.JSON(200, gin.H{
