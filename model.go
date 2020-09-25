@@ -33,15 +33,15 @@ type ApplyForm struct {
 // ApplyFormData contains application form fields
 type ApplyFormData struct {
 	// Email      string `gorm:"not null"`
-	Name       string `gorm:"not null"`
-	Gender     string `gorm:"not null"`
-	School     string `gorm:"not null"`
-	Grade      string `gorm:"not null"`
-	CodeTime   string `gorm:"not null"`
-	CPTime     string `gorm:"not null"`
-	Prize      string `gorm:"not null;size:1024"`
-	OJ         string `gorm:"not null;size:1024"`
-	Motivation string `gorm:"not null;size:8000"`
+	Name       string `json:"name" gorm:"not null"`
+	Gender     string `json:"gender" gorm:"not null"`
+	School     string `json:"school" gorm:"not null"`
+	Grade      string `json:"grade" gorm:"not null"`
+	CodeTime   string `json:"code-time" gorm:"not null"`
+	CPTime     string `json:"cp-time" gorm:"not null"`
+	Prize      string `json:"prize" gorm:"not null;size:1024"`
+	OJ         string `json:"oj" gorm:"not null;size:1024"`
+	Motivation string `json:"motivation" gorm:"not null;size:8000"`
 }
 
 func initDatabase() {

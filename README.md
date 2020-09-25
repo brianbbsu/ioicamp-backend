@@ -41,3 +41,50 @@ Register a new account.
 #### Response
 
 N/A
+
+### Login
+
+> POST /api/login
+
+Login request.
+
+#### Parameters
+
+| Name | Description |
+|---|---|
+| `email` | email address |
+|  `password` | password |
+
+#### Response
+
+| Name | Description |
+|---|---|
+| `token` | JWT Token |
+
+### Apply Form
+
+#### Form Fields
+
+| Name |
+|---|---|
+| `name` |
+| `gender` |
+| `school` |
+| `grade` |
+| `code-time` |
+| `cp-time` |
+| `prize` |
+| `oj` |
+| `motivation` |
+
+#### Authorization
+
+Put JWT Token in `Authorization` header (Bearer Authentication).
+
+> GET /api/users/apply-form
+
+No parameter, response apply form in `applyForm`
+
+> PUT /api/users/apply-form
+
+Update form, no additional response.

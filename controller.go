@@ -142,7 +142,7 @@ func controllerUsersGetApplyForm(c *gin.Context) {
 	if err != nil {
 		c.JSON(200, gin.H{
 			"status": "failed",
-			"error":  err,
+			"error":  "Unknown error",
 		})
 		return
 	}
@@ -162,7 +162,7 @@ func controllerUsersPutApplyForm(c *gin.Context) {
 	if err != nil {
 		c.JSON(200, gin.H{
 			"status": "failed",
-			"error":  err,
+			"error":  "Unknown error",
 		})
 		return
 	}
@@ -174,7 +174,7 @@ func controllerUsersPutApplyForm(c *gin.Context) {
 	if err != nil {
 		c.JSON(200, gin.H{
 			"status": "failed",
-			"error":  err,
+			"error":  "Unknown error",
 		})
 		return
 	}
@@ -190,7 +190,7 @@ func controllerUsersWhoAmI(c *gin.Context) {
 	if err != nil {
 		c.JSON(200, gin.H{
 			"status": "failed",
-			"error":  err,
+			"error":  "Unknown error",
 		})
 		return
 	}
