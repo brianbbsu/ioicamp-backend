@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"time"
 
@@ -29,6 +30,7 @@ type ApplyForm struct {
 	ApplyFormData
 }
 
+// ApplyFormData contains application form fields
 type ApplyFormData struct {
 	// Email      string `gorm:"not null"`
 	Name       string `gorm:"not null"`
@@ -107,11 +109,21 @@ func getUserByEmailAndPassword(email, password string) (User, error) {
 }
 
 func createUserByEmailAndPassword(email, password string) (User, error) {
-	user := User{Email: email, Password: password}
+	var user User
+	err := db.Where("email = ?", email).First(&user).Error
+	if err == nil {
+		return user, errors.New("User already exists")
+	}
+
+	user = User{Email: email, Password: password}
 
 	result := db.Create(&user)
 
-	return user, result.Error
+	if result.Error != nil {
+		return user, errors.New("Unknown error")
+	}
+
+	return user, nil
 }
 
 func attachApplyFormByUID(uid uint) error {

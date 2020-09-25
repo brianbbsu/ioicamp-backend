@@ -16,7 +16,7 @@ func controllerGetVerificationCode(c *gin.Context) {
 	if err != nil {
 		c.JSON(200, gin.H{
 			"status": "failed",
-			"error":  err,
+			"error":  "Unknown error",
 		})
 		return
 	}
@@ -30,20 +30,13 @@ func controllerGetVerificationCode(c *gin.Context) {
 		return
 	}
 
-	token, err := getRandomToken(6)
-	if err != nil {
-		c.JSON(200, gin.H{
-			"status": "failed",
-			"error":  err,
-		})
-		return
-	}
+	token, _ := getRandomToken(6)
 
 	result := db.Create(&EmailVerification{Email: request.Email, Token: token})
 	if result.Error != nil {
 		c.JSON(200, gin.H{
 			"status": "failed",
-			"error":  err,
+			"error":  "Unknown error",
 		})
 		return
 	}
@@ -52,7 +45,7 @@ func controllerGetVerificationCode(c *gin.Context) {
 	if err != nil {
 		c.JSON(200, gin.H{
 			"status": "failed",
-			"error":  err,
+			"error":  "Unknown error",
 		})
 		return
 	}
@@ -122,7 +115,7 @@ func controllerUsersRegister(c *gin.Context) {
 	if err != nil {
 		c.JSON(200, gin.H{
 			"status": "failed",
-			"error":  err,
+			"error":  err.Error(),
 		})
 		return
 	}
@@ -131,12 +124,10 @@ func controllerUsersRegister(c *gin.Context) {
 	if err != nil {
 		c.JSON(200, gin.H{
 			"status": "failed",
-			"error":  err,
+			"error":  "Unknown error",
 		})
 		return
 	}
-
-	user, _ = getUserByID(user.ID)
 
 	c.JSON(200, gin.H{
 		"status": "success",
@@ -189,7 +180,7 @@ func controllerUsersPutApplyForm(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"status":    "success",
+		"status": "success",
 	})
 }
 
