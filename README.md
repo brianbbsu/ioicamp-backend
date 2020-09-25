@@ -66,7 +66,7 @@ Login request.
 #### Form Fields
 
 | Name |
-|---|---|
+|---|
 | `name` |
 | `gender` |
 | `school` |
