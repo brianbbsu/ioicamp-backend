@@ -20,6 +20,7 @@ email:
   tokenEffectiveMinutes: 60
 TemplateDir: ./template/
 backend:
+  host: localhost
   port: 3030
   db: ./test.db
   allowedOrigin:
@@ -60,5 +61,5 @@ func initServer() {
 	initRouter(router)
 	initDatabase()
 
-	router.Run("localhost:" + Config.GetString("backend.port"))
+	router.Run(Config.GetString("backend.host") + ":" + Config.GetString("backend.port"))
 }
