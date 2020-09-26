@@ -16,7 +16,7 @@ func controllerGetVerificationCode(c *gin.Context) {
 
 	lastApplyTime, err := getLastCreatedAtByEmail(request.Email)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
@@ -25,7 +25,7 @@ func controllerGetVerificationCode(c *gin.Context) {
 
 	duration := time.Since(lastApplyTime)
 	if duration.Minutes() < Config.GetFloat64("email.requestDurationMinutes") {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Request too fast",
 		})
@@ -36,7 +36,7 @@ func controllerGetVerificationCode(c *gin.Context) {
 
 	result := db.Create(&EmailVerification{Email: request.Email, Token: token})
 	if result.Error != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
@@ -45,7 +45,7 @@ func controllerGetVerificationCode(c *gin.Context) {
 
 	err = sendEmailVerification(request.Email, token)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
@@ -66,7 +66,7 @@ func controllerUsersLogin(c *gin.Context) {
 	user, err := getUserByEmailAndPassword(request.Email, request.Password)
 
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "User not found",
 		})
@@ -76,7 +76,7 @@ func controllerUsersLogin(c *gin.Context) {
 	token, err := getJWTTokenByUID(user.ID)
 
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
@@ -95,7 +95,7 @@ func controllerUsersRegister(c *gin.Context) {
 
 	emailVerification, err := getEmailVerificationByEmailAndToken(request.Email, request.Token)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Token not found",
 		})
@@ -104,7 +104,7 @@ func controllerUsersRegister(c *gin.Context) {
 
 	duration := time.Since(emailVerification.CreatedAt)
 	if duration.Minutes() > Config.GetFloat64("email.tokenEffectiveMinutes") {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Token expired",
 		})
@@ -115,7 +115,7 @@ func controllerUsersRegister(c *gin.Context) {
 
 	err = validateNewPassword(request.Password)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  err.Error(),
 		})
@@ -123,7 +123,7 @@ func controllerUsersRegister(c *gin.Context) {
 
 	user, err := createUserByEmailAndPassword(request.Email, request.Password)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  err.Error(),
 		})
@@ -132,7 +132,7 @@ func controllerUsersRegister(c *gin.Context) {
 
 	err = attachApplyFormByUID(user.ID)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
@@ -151,7 +151,7 @@ func controllerUsersGetApplyForm(c *gin.Context) {
 	applyForm, err := getApplyFormByUserID(uid)
 
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
@@ -172,7 +172,7 @@ func controllerUsersPutApplyForm(c *gin.Context) {
 
 	form, err := getApplyFormByUserID(uid)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
@@ -184,7 +184,7 @@ func controllerUsersPutApplyForm(c *gin.Context) {
 
 	err = updateFormByForm(form)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
@@ -200,7 +200,7 @@ func controllerUsersChangePassword(c *gin.Context) {
 	uid, _ := c.MustGet("UID").(uint)
 	user, err := getUserByID(uid)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
@@ -210,7 +210,7 @@ func controllerUsersChangePassword(c *gin.Context) {
 	c.BindJSON(&request)
 	err = bcrypt.CompareHashAndPassword(user.HashedPassword, []byte(request.OldPassword))
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Password incorrect",
 		})
@@ -218,7 +218,7 @@ func controllerUsersChangePassword(c *gin.Context) {
 	}
 	err = validateNewPassword(request.NewPassword)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  err.Error(),
 		})
@@ -226,7 +226,7 @@ func controllerUsersChangePassword(c *gin.Context) {
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), Config.GetInt("bcryptCost"))
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
@@ -235,7 +235,7 @@ func controllerUsersChangePassword(c *gin.Context) {
 	user.HashedPassword = hashedPassword
 	err = updateUserByUser(user)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
@@ -250,7 +250,7 @@ func controllerUsersWhoAmI(c *gin.Context) {
 	uid, _ := c.MustGet("UID").(uint)
 	user, err := getUserByID(uid)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(400, gin.H{
 			"status": "failed",
 			"error":  "Unknown error",
 		})
