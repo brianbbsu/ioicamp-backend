@@ -137,6 +137,7 @@ func controllerUsersRegister(c *gin.Context) {
 func controllerUsersGetApplyForm(c *gin.Context) {
 	uid, _ := c.MustGet("UID").(uint)
 
+	user, err := getUserByID(uid)
 	applyForm, err := getApplyFormByUserID(uid)
 
 	if err != nil {
@@ -149,6 +150,7 @@ func controllerUsersGetApplyForm(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"status":    "success",
+		"email":     user.Email,
 		"applyForm": applyForm.ApplyFormData,
 	})
 }

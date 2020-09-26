@@ -83,7 +83,12 @@ Put JWT Token in `Authorization` header (Bearer Authentication).
 
 > GET /api/users/apply-form
 
-No parameter, response apply form in `applyForm`
+No parameter needed. Response:
+
+| Name | Descriptioin |
+| --- | --- |
+| `applyForm` | A JSON of apply form data |
+| `email` | The user's email address |
 
 > PUT /api/users/apply-form
 
