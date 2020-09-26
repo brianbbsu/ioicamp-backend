@@ -14,11 +14,7 @@ func sendMail(mail *gomail.Message) error {
 		Config.GetString("email.email"), Config.GetString("email.password"))
 
 	err := d.DialAndSend(mail)
-	if err != nil {
-		panic(err)
-	}
-
-	return nil
+	return err
 }
 
 func sendEmailVerification(address string, token string) error {
