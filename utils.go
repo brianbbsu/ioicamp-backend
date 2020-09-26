@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"errors"
 	"math/big"
 )
 
@@ -16,4 +17,13 @@ func getRandomToken(n int) (string, error) {
 		ret = append(ret, sigma[num.Int64()])
 	}
 	return string(ret), nil
+}
+
+func validateNewPassword(password string) error {
+	// Check if password is strong enough
+	// TODO: Implement this
+	if len(password) == 0 {
+		return errors.New("Password should have length at least 1")
+	}
+	return nil
 }

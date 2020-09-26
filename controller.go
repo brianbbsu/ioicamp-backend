@@ -186,6 +186,47 @@ func controllerUsersPutApplyForm(c *gin.Context) {
 	})
 }
 
+func controllerUsersChangePassword(c *gin.Context) {
+	uid, _ := c.MustGet("UID").(uint)
+	user, err := getUserByID(uid)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status": "failed",
+			"error":  "Unknown error",
+		})
+		return
+	}
+	var request UserChangePasswordRequestInterface
+	c.BindJSON(&request)
+	if user.Password != request.OldPassword {
+		c.JSON(200, gin.H{
+			"status": "failed",
+			"error":  "Password incorrect",
+		})
+		return
+	}
+	err = validateNewPassword(request.NewPassword)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status": "failed",
+			"error":  err.Error(),
+		})
+		return
+	}
+	user.Password = request.NewPassword
+	err = updateUserByUser(user)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status": "failed",
+			"error":  "Unknown error",
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": "success",
+	})
+}
+
 func controllerUsersWhoAmI(c *gin.Context) {
 	uid, _ := c.MustGet("UID").(uint)
 	user, err := getUserByID(uid)
@@ -207,6 +248,12 @@ type UserRegisterRequestInterface struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Token    string `json:"token"`
+}
+
+// UserChangePasswordRequestInterface stores the parameters for change password request
+type UserChangePasswordRequestInterface struct {
+	OldPassword string `json:"old-password"`
+	NewPassword string `json:"new-password"`
 }
 
 // TODO: maybe need a error map?

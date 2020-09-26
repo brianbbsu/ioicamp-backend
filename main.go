@@ -22,6 +22,8 @@ TemplateDir: ./template/
 backend:
   port: 3030
   db: ./test.db
+  allowedOrigin:
+    - http://example.com
 jwt:
   secret: THIS_IS_A_SECRET # Change this to a long random string in production
   tokenEffectiveMinutes: 10080 # One week
@@ -48,16 +50,6 @@ func initConfig() {
 
 func main() {
 	initConfig()
-	token, err := getRandomToken(6)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(token, len(token))
-	// if err := sendEmailVerification("brianbb.su@gmail.com", token); err != nil {
-	// 	panic(err)
-	// }
-	fmt.Println("Done!")
-
 	initServer()
 }
 

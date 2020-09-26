@@ -93,3 +93,22 @@ No parameter needed. Response:
 > PUT /api/users/apply-form
 
 Update form, no additional response.
+
+### Change Password
+
+> POST /api/users/change-password
+
+#### Authorization
+
+Put JWT Token in `Authorization` header (Bearer Authentication).
+
+#### Parameters
+
+| Name | Description |
+|---|---|
+| `old-password` | Original password |
+| `new-password` | New password |
+
+#### Response
+
+N/A

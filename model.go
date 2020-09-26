@@ -150,3 +150,7 @@ func getApplyFormByUserID(uid uint) (ApplyForm, error) {
 func updateFormByForm(form ApplyForm) error {
 	return db.Save(&form).Error
 }
+
+func updateUserByUser(user User) error {
+	return db.Save(&user).Error
+}
