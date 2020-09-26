@@ -27,6 +27,7 @@ backend:
 jwt:
   secret: THIS_IS_A_SECRET # Change this to a long random string in production
   tokenEffectiveMinutes: 10080 # One week
+bcryptCost: 12
 `)
 
 // TODO: add verfication effective/expire time

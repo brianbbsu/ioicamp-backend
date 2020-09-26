@@ -3,6 +3,8 @@ package main
 import (
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,7 +59,7 @@ func controllerGetVerificationCode(c *gin.Context) {
 }
 
 func controllerUsersLogin(c *gin.Context) {
-	var request User
+	var request UserLoginRequestInterface
 
 	c.BindJSON(&request)
 
@@ -110,6 +112,14 @@ func controllerUsersRegister(c *gin.Context) {
 	}
 
 	// TODO: validate
+
+	err = validateNewPassword(request.Password)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status": "failed",
+			"error":  err.Error(),
+		})
+	}
 
 	user, err := createUserByEmailAndPassword(request.Email, request.Password)
 	if err != nil {
@@ -198,7 +208,8 @@ func controllerUsersChangePassword(c *gin.Context) {
 	}
 	var request UserChangePasswordRequestInterface
 	c.BindJSON(&request)
-	if user.Password != request.OldPassword {
+	err = bcrypt.CompareHashAndPassword(user.HashedPassword, []byte(request.OldPassword))
+	if err != nil {
 		c.JSON(200, gin.H{
 			"status": "failed",
 			"error":  "Password incorrect",
@@ -213,7 +224,15 @@ func controllerUsersChangePassword(c *gin.Context) {
 		})
 		return
 	}
-	user.Password = request.NewPassword
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), Config.GetInt("bcryptCost"))
+	if err != nil {
+		c.JSON(200, gin.H{
+			"status": "failed",
+			"error":  "Unknown error",
+		})
+		return
+	}
+	user.HashedPassword = hashedPassword
 	err = updateUserByUser(user)
 	if err != nil {
 		c.JSON(200, gin.H{
@@ -248,6 +267,12 @@ type UserRegisterRequestInterface struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Token    string `json:"token"`
+}
+
+// UserLoginRequestInterface is the struct storing user register request data
+type UserLoginRequestInterface struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 // UserChangePasswordRequestInterface stores the parameters for change password request

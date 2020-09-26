@@ -6,15 +6,16 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // User is a database model for an user account
 type User struct {
 	gorm.Model
-	Email       string `gorm:"not null;unique"`
-	Password    string `gorm:"not null"`
-	ApplyFormID uint
-	ApplyForm   ApplyForm `gorm:"not null"`
+	Email          string `gorm:"not null;unique"`
+	HashedPassword []byte
+	ApplyFormID    uint
+	ApplyForm      ApplyForm `gorm:"not null"`
 }
 
 // EmailVerification is a database model storing email verification tokens
@@ -101,11 +102,15 @@ func getLastCreatedAtByEmail(email string) (time.Time, error) {
 }
 
 func getUserByEmailAndPassword(email, password string) (User, error) {
-	var user User
-
-	result := db.Where("email = ? and password = ?", email, password).First(&user)
-
-	return user, result.Error
+	user, err := getUserByEmail(email)
+	if err != nil {
+		return user, err
+	}
+	err = bcrypt.CompareHashAndPassword(user.HashedPassword, []byte(password))
+	if err != nil {
+		return user, err
+	}
+	return user, nil
 }
 
 func createUserByEmailAndPassword(email, password string) (User, error) {
@@ -114,15 +119,15 @@ func createUserByEmailAndPassword(email, password string) (User, error) {
 	if err == nil {
 		return user, errors.New("User already exists")
 	}
-
-	user = User{Email: email, Password: password}
-
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), Config.GetInt("bcryptCost"))
+	if err != nil {
+		return user, errors.New("Unknown error")
+	}
+	user = User{Email: email, HashedPassword: hashedPassword}
 	result := db.Create(&user)
-
 	if result.Error != nil {
 		return user, errors.New("Unknown error")
 	}
-
 	return user, nil
 }
 

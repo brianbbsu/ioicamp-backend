@@ -24,6 +24,8 @@ func validateNewPassword(password string) error {
 	// TODO: Implement this
 	if len(password) == 0 {
 		return errors.New("Password should have length at least 1")
+	} else if len([]byte(password)) > 72 { // 72 is the maximnum supported length for bcrypt
+		return errors.New("Password should have length not greater than 72")
 	}
 	return nil
 }
