@@ -76,6 +76,7 @@ Login request.
 | `prize` |
 | `oj` |
 | `motivation` |
+| `comment` |
 
 #### Authorization
 

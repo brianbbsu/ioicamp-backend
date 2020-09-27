@@ -51,6 +51,7 @@ type ApplyFormData struct {
 	Prize      string `json:"prize" gorm:"not null;size:1024"`
 	OJ         string `json:"oj" gorm:"not null;size:1024"`
 	Motivation string `json:"motivation" gorm:"not null;size:8000"`
+	Comment    string `json:"comment" gorm:"not null;size:8000"`
 }
 
 func initDatabase() {
