@@ -9,7 +9,7 @@ func initRouter(router *gin.Engine) {
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     Config.GetStringSlice("backend.allowedOrigin"),
 		AllowMethods:     []string{"GET", "POST", "PUT"},
-		AllowHeaders:     []string{"*"},
+        AllowHeaders:     []string{"Accept", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"*"},
 		AllowCredentials: true,
 	}))
