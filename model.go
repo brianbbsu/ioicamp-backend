@@ -31,6 +31,14 @@ type ApplyForm struct {
 	ApplyFormData
 }
 
+// PasswordReset is a database model storing password reset tokens
+type PasswordReset struct {
+	gorm.Model
+	Email string `json:"email" gorm:"not null"`
+	Token string `gorm:"not null"`
+	Valid bool   `gorm:"not null"`
+}
+
 // ApplyFormData contains application form fields
 type ApplyFormData struct {
 	// Email      string `gorm:"not null"`
@@ -54,7 +62,7 @@ func initDatabase() {
 		return
 	}
 
-	db.AutoMigrate(&User{}, &EmailVerification{}, &ApplyForm{})
+	db.AutoMigrate(&User{}, &EmailVerification{}, &ApplyForm{}, &PasswordReset{})
 }
 
 func getUserByEmail(email string) (User, error) {

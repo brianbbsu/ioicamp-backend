@@ -28,6 +28,8 @@ func routerInitAPIRouter(group *gin.RouterGroup) {
 	group.POST("get-verification-token", controllerGetVerificationCode)
 	group.POST("login", controllerUsersLogin)
 	group.POST("register", controllerUsersRegister)
+	group.POST("get-password-reset-token", controllerGetPasswordResetToken)
+	group.POST("password-reset", controllerPasswordReset)
 }
 
 func routerAPIinitUserRouter(group *gin.RouterGroup) {

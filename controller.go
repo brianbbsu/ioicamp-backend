@@ -1,11 +1,13 @@
 package main
 
 import (
+	"errors"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
 
 func controllerGetVerificationCode(c *gin.Context) {
@@ -55,6 +57,124 @@ func controllerGetVerificationCode(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"status":  "success",
 		"message": "email sent",
+	})
+}
+
+func controllerGetPasswordResetToken(c *gin.Context) {
+	var request struct {
+		Email string
+	}
+	c.BindJSON(&request)
+	_, err := getUserByEmail(request.Email)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = sendPasswordReset(request.Email, "", false)
+		if err != nil {
+			c.JSON(400, gin.H{
+				"status": "failed",
+			})
+		} else {
+			c.JSON(200, gin.H{
+				"status": "success",
+			})
+		}
+		return
+	} else if err != nil {
+		c.JSON(400, gin.H{
+			"status": "failed",
+		})
+		return
+	}
+	token, _ := getRandomToken(64)
+	result := db.Create(&PasswordReset{Email: request.Email, Token: token, Valid: true})
+	if result.Error != nil {
+		c.JSON(400, gin.H{
+			"status": "failed",
+		})
+		return
+	}
+	err = sendPasswordReset(request.Email, token, true)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"status": "failed",
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": "success",
+	})
+}
+
+func controllerPasswordReset(c *gin.Context) {
+	var request struct {
+		Token       string `json:"token"`
+		NewPassword string `json:"new-password"`
+	}
+	c.BindJSON(&request)
+
+	if err := validateNewPassword(request.NewPassword); err != nil {
+		c.JSON(400, gin.H{
+			"status": "failed",
+			"error":  err.Error(),
+		})
+		return
+	}
+
+	var passwordReset PasswordReset
+	result := db.Where("token = ?", request.Token).First(&passwordReset)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		c.JSON(400, gin.H{
+			"status": "failed",
+			"error":  "Invalid token",
+		})
+		return
+	} else if result.Error != nil {
+		c.JSON(400, gin.H{
+			"status": "failed",
+			"error":  "Unknown error",
+		})
+		return
+	}
+
+	duration := time.Since(passwordReset.CreatedAt)
+	if !passwordReset.Valid || duration.Minutes() > Config.GetFloat64("passwordReset.tokenEffectiveMinutes") {
+		c.JSON(400, gin.H{
+			"status": "failed",
+			"error":  "Token expired",
+		})
+		return
+	}
+
+	user, err := getUserByEmail(passwordReset.Email)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"status": "failed",
+		})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), Config.GetInt("bcryptCost"))
+	if err != nil {
+		c.JSON(400, gin.H{
+			"status": "failed",
+			"error":  "Unknown error",
+		})
+		return
+	}
+	user.HashedPassword = hashedPassword
+	err = updateUserByUser(user)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"status": "failed",
+			"error":  "Unknown error",
+		})
+		return
+	}
+
+	passwordReset.Valid = false
+	db.Save(&passwordReset)
+	c.JSON(200, gin.H{
+		"status": "success",
 	})
 }
 

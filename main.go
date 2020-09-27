@@ -22,12 +22,15 @@ TemplateDir: ./template/
 backend:
   host: localhost
   port: 3030
+  rootURL: http://example.com
   db: ./test.db
   allowedOrigin:
     - http://example.com
 jwt:
   secret: THIS_IS_A_SECRET # Change this to a long random string in production
   tokenEffectiveMinutes: 10080 # One week
+passwordReset:
+  tokenEffectiveMinutes: 60
 bcryptCost: 12
 `)
 

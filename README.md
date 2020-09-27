@@ -112,3 +112,32 @@ Put JWT Token in `Authorization` header (Bearer Authentication).
 #### Response
 
 N/A
+
+### Request Password Reset Token
+
+> POST /api/get-password-reset-token
+
+#### Parameters
+
+| Name | Description |
+|---|---|
+| `email` | Email address |
+
+#### Response
+
+N/A
+
+### Password Reset
+
+> POST /api/password-reset
+
+#### Parameters
+
+| Name | Description |
+|---|---|
+| `token` | Password reset token |
+| `new-password` | New password |
+
+#### Response
+
+N/A
