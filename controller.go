@@ -119,6 +119,7 @@ func controllerUsersRegister(c *gin.Context) {
 			"status": "failed",
 			"error":  err.Error(),
 		})
+		return
 	}
 
 	user, err := createUserByEmailAndPassword(request.Email, request.Password)
