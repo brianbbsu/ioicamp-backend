@@ -16,6 +16,7 @@ func controllerGetVerificationCode(c *gin.Context) {
 
 	c.BindJSON(&request)
 
+	normalizeEmail(&request.Email)
 	lastApplyTime, err := getLastCreatedAtByEmail(request.Email)
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -65,6 +66,8 @@ func controllerGetPasswordResetToken(c *gin.Context) {
 		Email string
 	}
 	c.BindJSON(&request)
+	normalizeEmail(&request.Email)
+
 	_, err := getUserByEmail(request.Email)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		err = sendPasswordReset(request.Email, "", false)
@@ -182,6 +185,7 @@ func controllerUsersLogin(c *gin.Context) {
 	var request UserLoginRequestInterface
 
 	c.BindJSON(&request)
+	normalizeEmail(&request.Email)
 
 	user, err := getUserByEmailAndPassword(request.Email, request.Password)
 
@@ -212,6 +216,7 @@ func controllerUsersRegister(c *gin.Context) {
 	var request UserRegisterRequestInterface
 
 	c.BindJSON(&request)
+	normalizeEmail(&request.Email)
 
 	emailVerification, err := getEmailVerificationByEmailAndToken(request.Email, request.Token)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"math/big"
+	"strings"
 )
 
 func getRandomToken(n int) (string, error) {
@@ -28,4 +29,9 @@ func validateNewPassword(password string) error {
 		return errors.New("Password should have length not greater than 72")
 	}
 	return nil
+}
+
+func normalizeEmail(email *string) {
+	*email = strings.TrimSpace(*email)
+	*email = strings.ToLower(*email)
 }
